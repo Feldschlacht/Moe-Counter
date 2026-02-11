@@ -107,16 +107,28 @@ function getCountImage(params) {
   // Fix the last image offset
   x -= offset
 
+  // ★ここを強化！SVG全体、imageタグ、useタグ全てにドット表示を強制するCSSを生成
+  // render=pixelated が指定されているか、デフォルト設定の場合に適用
+  const isPixelated = (pixelated === '1' || render === 'pixelated');
+  
   const style = `
-  svg {
-    ${pixelated === '1' ? 'image-rendering: pixelated;' : ''}
+  svg, image, use {
+    ${isPixelated ? `
+      image-rendering: optimizeSpeed;             /* Older versions */
+      image-rendering: -moz-crisp-edges;          /* Firefox */
+      image-rendering: -o-crisp-edges;            /* Opera */
+      image-rendering: -webkit-optimize-contrast; /* WebKit (Chrome/Safari) */
+      image-rendering: pixelated;                 /* Modern browsers */
+      image-rendering: crisp-edges;               /* Modern browsers */
+      -ms-interpolation-mode: nearest-neighbor;   /* IE */
+    ` : ''}
     ${darkmode === '1' ? 'filter: brightness(.6);' : ''}
   }
   ${darkmode === 'auto' ? `@media (prefers-color-scheme: dark) { svg { filter: brightness(.6); } }` : ''}
   `
 
-  // Force pixelated style on the SVG tag if render=pixelated is passed
-  const forcePixelated = render === 'pixelated' ? 'style="image-rendering: pixelated;"' : ''
+  // Force pixelated style inline on the SVG tag as a backup
+  const forcePixelated = render === 'pixelated' ? 'style="image-rendering: pixelated; image-rendering: -webkit-optimize-contrast;"' : ''
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg ${forcePixelated} viewBox="0 0 ${toFixed(x, 5)} ${toFixed(y, 5)}" width="${toFixed(x, 5)}" height="${toFixed(y, 5)}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
