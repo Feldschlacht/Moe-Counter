@@ -25,10 +25,13 @@ fs.readdirSync(themePath).forEach(theme => {
     const imgPath = path.resolve(currentThemePath, img)
     const char = path.parse(img).name
     const { width, height } = sizeOf(imgPath)
+    // aimgテーマ（6倍画像）の場合は表示枠を元のサイズ（1/6）に指定
+    const displayWidth = theme === 'aimg' ? width / 6 : width
+    const displayHeight = theme === 'aimg' ? height / 6 : height
 
     themeList[theme][char] = {
-      width,
-      height,
+      width: displayWidth,
+      height: displayHeight,
       data: convertToDatauri(imgPath)
     }
   })
